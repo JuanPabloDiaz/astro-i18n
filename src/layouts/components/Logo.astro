@@ -1,6 +1,5 @@
 ---
 import config from "@/config/config.json";
-import { Image } from "astro:assets";
 const { src } = Astro.props;
 const {
   logo,
@@ -20,17 +19,12 @@ const {
 <a href="/" class="navbar-brand block">
   {
     src || logo ? (
-      <Image
-        width={logo_width.replace("px", "") * 2}
-        height={logo_height.replace("px", "") * 2}
-        src={src ? src : logo}
-        alt={title}
-        style={{
-          height: logo_height.replace("px", "") + "px",
-          width: logo_width.replace("px", "") + "px",
-        }}
-      />
-    ) : logo_text ? (
+      <p
+        class="flex items-center gap-2"
+        aria-label={logo_text || title}
+      >
+        Astro i18n
+</p>    ) : logo_text ? (
       logo_text
     ) : (
       title
