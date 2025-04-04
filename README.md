@@ -1,5 +1,53 @@
 # Astro i18n
 
+## 📂 Project Structure
+
+Below is the basic structure of the project:
+
+```
+astro-i18n/
+├── public/
+├── src/
+│   ├── config/
+│   ├── content/
+│   │   ├── about/
+│   │   │   └── index.md
+│   │   ├── blog/
+│   │   │   ├── index.md
+│   │   │   ├── post-1.mdx
+│   │   │   ├── post-2.mdx
+│   │   │   └── post-3.mdx
+│   │   ├── contact/
+│   │   │   ├── index.md
+│   │   ├── homepage/
+│   │   │   ├── index.md
+│   │   └── pages/
+│   │       ├── 404.md
+│   │       └── other-page.md
+│   │
+│   ├── layouts/
+│   │   ├── components/
+│   │   ├── function-components/
+│   │   ├── partials/
+│   │   └── shortcodes/
+│   ├── lib/
+│   │   └── utils/
+│   ├── pages/
+│   │   ├── blog/
+│   │   ├── categories/
+│   │   ├── 404.astro
+│   │   ├── index.astro
+│   │   ├── about.astro
+│   │   ├── contact.astro
+│   ├── components/
+│   ├── styles/
+│   └── tailwind-plugin/
+├── package.json
+├── astro.config.mjs
+├── tsconfig.json
+└── README.md
+```
+
 ## 🛠️ Installation
 
 After downloading the template, you have some prerequisites to install. Then you can run it on your localhost. You can view the package.json file to see which scripts are included.
