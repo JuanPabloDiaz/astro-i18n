@@ -8,6 +8,8 @@ import Header from "@/partials/Header.astro";
 import "@/styles/main.css";
 import { AstroFont } from "astro-font";
 import { ClientRouter } from "astro:transitions";
+import { getLangFromUrl } from '@/i18n/utils';
+
 
 // font families
 const pf = theme.fonts.font_family.primary;
@@ -27,10 +29,12 @@ if (theme.fonts.font_family.secondary) {
 
 const { title, meta_title, description, image, noindex, canonical } =
   Astro.props;
+
+  const lang = getLangFromUrl(Astro.url);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <!-- favicon -->
     <link rel="shortcut icon" href={config.site.favicon} />

@@ -8,10 +8,25 @@ import Cta from "@/layouts/partials/Cta.astro";
 import type { CollectionEntry } from "astro:content";
 import { getEntry } from "astro:content";
 
-const homepage = (await getEntry(
-  "homepage",
-  "-index"
-)) as CollectionEntry<"homepage">;
+
+// const homepage = (await getEntry(
+//   "homepage",
+//   "-index"
+// )) as CollectionEntry<"homepage">;
+
+let homepage;
+try {
+  homepage = (await getEntry("homepage", "-index")) as CollectionEntry<"homepage">;
+} catch (error) {
+  console.error("Error loading homepage content:", error);
+}
+
+if (!homepage) {
+  console.error("Homepage data is not available.");
+  // Handle the case where homepage data is not loaded
+  // You might want to return an error page or fallback content here
+}
+
 const { banner, key_features, service, testimonial } = homepage.data;
 ---
 

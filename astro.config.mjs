@@ -11,9 +11,14 @@ import config from "./src/config/config.json";
 // https://astro.build/config
 export default defineConfig({
   site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
-  base: config.site.base_path ? config.site.base_path : "/",
-  trailingSlash: config.site.trailing_slash ? "always" : "never",
+  // base: config.site.base_path ? config.site.base_path : "/",
+  // trailingSlash: config.site.trailing_slash ? "always" : "never",
+  trailingSlash: "never", // Explicitly set to "never"
   vite: { plugins: [tailwindcss()] },
+  // i18n: {
+  //   locales: ["es", "en"],
+  //   defaultLocale: "en",
+  // },
   integrations: [
     react(),
     sitemap(),

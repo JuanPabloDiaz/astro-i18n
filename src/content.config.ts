@@ -166,6 +166,7 @@ const blogCollection = defineCollection({
     categories: z.array(z.string()).default(["others"]),
     draft: z.boolean().optional(),
     featured: z.boolean().optional(),
+    lang: z.enum(["en", "es"]), // Add language field
   }),
 });
 

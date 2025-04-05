@@ -1,6 +1,8 @@
 ---
+import LanguagePicker from "@/components/LanguagePicker.astro";
 import Logo from "@/components/Logo.astro";
 import menu from "@/config/menu.json";
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
 
 export interface ChildNavigationLink {
   name: string;
@@ -16,6 +18,10 @@ export interface NavigationLink {
 
 const { main }: { main: NavigationLink[] } = menu;
 const { pathname } = Astro.url;
+
+// Get the current language and translation function
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <header class="header">
@@ -24,6 +30,8 @@ const { pathname } = Astro.url;
     <div class="order-0">
       <Logo />
     </div>
+          <!-- Language Picker -->
+          <LanguagePicker />
     <!-- navbar toggler -->
     <input id="nav-toggle" type="checkbox" class="hidden" />
     <label
@@ -69,7 +77,7 @@ const { pathname } = Astro.url;
                       : ""
                   }`}
                 >
-                  {menu.name}
+                  {t(`nav.${menu.name.toLowerCase()}`)}
                   <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                   </svg>
@@ -88,7 +96,7 @@ const { pathname } = Astro.url;
                           "text-primary"
                         }`}
                       >
-                        {child.name}
+                        {t(`nav.${child.name.toLowerCase()}`)}
                       </a>
                     </li>
                   ))}
@@ -103,7 +111,7 @@ const { pathname } = Astro.url;
                     "active"
                   }`}
                 >
-                  {menu.name}
+                  {t(`nav.${menu.name.toLowerCase()}`)}
                 </a>
               </li>
             )}
