@@ -1,13 +1,36 @@
 ---
 import config from "@/config/config.json";
+import { getLangFromUrl } from "@/i18n/utils";
 
-const {
-  call_to_action: {
-    title,
-    description,
-    button: { label, link },
+// Get the current language from URL
+const lang = getLangFromUrl(Astro.url);
+
+// Language-specific CTA content
+const translations = {
+  en: {
+    title: "Helping teams in the world with focus",
+    description: "Lorem ipsum dolor sit sed dmi amet, consectetur adipiscing. Cdo tellus, sed condimentum volutpat.",
+    button: {
+      label: "Download The Theme",
+      link: "https://themefisher.com/astro-themes/pinwheel-astro"
+    }
   },
-} = config;
+  es: {
+    title: "Ayudando a equipos en el mundo con enfoque",
+    description: "Lorem ipsum dolor sit sed dmi amet, consectetur adipiscing. Cdo tellus, sed condimentum volutpat.",
+    button: {
+      label: "Descargar El Tema",
+      link: "https://themefisher.com/astro-themes/pinwheel-astro"
+    }
+  }
+};
+
+// Get translations for current language or fall back to config
+const {
+  title = config.call_to_action.title,
+  description = config.call_to_action.description,
+  button = config.call_to_action.button
+} = translations[lang as keyof typeof translations] || translations.en;
 ---
 
 <section class="px-5 py-20 xl:py-[120px]">
@@ -19,7 +42,7 @@ const {
         <div class="row">
           <div class="lg:col-7">
             <h2 class="h1 text-white">{title}</h2>
-            <a class="btn btn-white mt-8" href={link}>{label}</a>
+            <a class="btn btn-white mt-8" href={button.link}>{button.label}</a>
           </div>
           <div class="mt-8 lg:col-5 lg:mt-0">
             <p class="text-white">

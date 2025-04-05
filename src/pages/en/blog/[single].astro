@@ -1,0 +1,39 @@
+---
+import Base from "@/layouts/Base.astro";
+import BlogSingle from "@/layouts/BlogSingle.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { getLangFromUrl } from "@/i18n/utils";
+
+// Get current language
+const lang = getLangFromUrl(Astro.url);
+
+export async function getStaticPaths() {
+  const posts = await getSinglePage("blog");
+
+  const paths = posts.map((post) => {
+    // Extract the slug from the post ID 
+    const parts = post.id.split('/');
+    const slug = parts[parts.length - 1];
+    
+    return {
+      params: {
+        single: slug,
+      },
+      props: { post },
+    };
+  });
+  return paths;
+}
+
+const { post } = Astro.props;
+const { title, meta_title, description, image } = post.data;
+---
+
+<Base
+  title={title}
+  meta_title={meta_title}
+  description={description}
+  image={image}
+>
+  <BlogSingle post={post} />
+</Base>

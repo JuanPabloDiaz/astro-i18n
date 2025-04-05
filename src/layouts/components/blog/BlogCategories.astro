@@ -1,12 +1,16 @@
 ---
 import { humanize, slugify } from "@/lib/utils/textConverter";
 import type { CollectionEntry } from "astro:content";
+import { getLangFromUrl } from "@/i18n/utils";
 
 type Props = {
   categories: CollectionEntry<"blog">["data"]["categories"];
 };
 const { categories } = Astro.props;
 const params = Astro.params;
+
+// Get current language
+const lang = getLangFromUrl(Astro.url);
 ---
 
 <div class="category-filter mb-10 mt-3 rounded-xl bg-[#EEEEEE] p-4">
@@ -16,7 +20,7 @@ const params = Astro.params;
         class={`filter-btn ${
           !params.category ? "filter-btn-active" : undefined
         } btn btn-sm`}
-        href="/categories">All Categories</a
+        href={`/${lang}/categories`}>All Categories</a
       >
     </li>
     {
@@ -28,7 +32,7 @@ const params = Astro.params;
                 ? "filter-btn-active"
                 : undefined
             } btn btn-sm`}
-            href={`/categories/${slugify(category)}`}
+            href={`/${lang}/categories/${slugify(category)}`}
           >
             {humanize(category)}
           </a>

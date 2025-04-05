@@ -3,8 +3,16 @@ import { defineCollection, z } from "astro:content";
 
 // Homepage Collection Schema
 const homepageCollection = defineCollection({
-  loader: glob({ pattern: "**/-*.{md,mdx}", base: "src/content/homepage" }),
-  schema: z.object({
+  loader: glob({ 
+    pattern: [
+      "*/homepage/index.md", 
+      "*/homepage/*.md",
+      "homepage/*.md",
+      "homepage/*/*.md"
+    ],
+    base: "src/content" 
+  }),
+  schema: ({ image }) => z.object({
     banner: z.object({
       title: z.string(),
       content: z.string().optional(),
@@ -88,7 +96,7 @@ const homepageCollection = defineCollection({
 
 // About Collection Schema
 const aboutCollection = defineCollection({
-  loader: glob({ pattern: "**/-*.{md,mdx}", base: "src/content/about" }),
+  loader: glob({ pattern: ["*/about/*.{md,mdx}"], base: "src/content" }),
   schema: z.object({
     title: z.string(),
     page_title: z.string(),
@@ -153,7 +161,7 @@ const aboutCollection = defineCollection({
 
 // Blog collection schema
 const blogCollection = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "src/content/blog" }),
+  loader: glob({ pattern: ["*/blog/*.{md,mdx}"], base: "src/content" }),
   schema: z.object({
     title: z.string(),
     page_title: z.string().optional(),
@@ -171,6 +179,7 @@ const blogCollection = defineCollection({
 
 // Contact collection schema
 const contactCollection = defineCollection({
+  loader: glob({ pattern: ["*/contact/*.{md,mdx}"], base: "src/content" }),
   schema: z.object({
     title: z.string(),
     meta_title: z.string().optional(),
@@ -182,6 +191,7 @@ const contactCollection = defineCollection({
 
 // Pages collection schema
 const pagesCollection = defineCollection({
+  loader: glob({ pattern: ["*/pages/*.{md,mdx}"], base: "src/content" }),
   schema: z.object({
     id: z.string().optional(),
     title: z.string(),

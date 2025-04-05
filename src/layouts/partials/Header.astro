@@ -1,21 +1,72 @@
 ---
 import Logo from "@/components/Logo.astro";
+import LangSwitcher from "@/layouts/components/LangSwitcher.astro";
 import menu from "@/config/menu.json";
+import menuI18n from "@/config/menu-i18n.json";
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
 
 export interface ChildNavigationLink {
   name: string;
   url: string;
+  translationKey?: string;
 }
 
 export interface NavigationLink {
   name: string;
   url: string;
+  translationKey?: string;
   hasChildren?: boolean;
   children?: ChildNavigationLink[];
 }
 
-const { main }: { main: NavigationLink[] } = menu;
+// Get current language and pathname
 const { pathname } = Astro.url;
+const lang = getLangFromUrl(Astro.url);
+
+// Use language-specific menu
+interface MenuItem {
+  name: string;
+  url: string;
+  hasChildren?: boolean;
+  children?: {name: string; url: string}[];
+}
+
+// Get language-specific menu with type safety
+let menuItems: MenuItem[] = [];
+if (lang in menuI18n) {
+  const langMenu = menuI18n[lang as keyof typeof menuI18n];
+  if (langMenu && 'main' in langMenu) {
+    menuItems = langMenu.main as MenuItem[];
+  }
+} 
+
+if (menuItems.length === 0) {
+  // Fallback to standard menu
+  menuItems = menu.main as MenuItem[];
+}
+
+// Get translations function
+const t = useTranslations(lang);
+
+console.log(`[HEADER-DEBUG] Current language: ${lang}, rendering Header with translations`);
+console.log(`[HEADER-DEBUG] Menu items: ${JSON.stringify(menuItems.map(item => item.name))}`);
+console.log(`[HEADER-DEBUG] Sample translated menu key 'nav.about': ${t('nav.about')}`);
+
+// Function to get a language-specific URL
+function getLocalizedUrl(path: string): string {
+  // If the path already starts with the language code, return it as is
+  if (path.startsWith(`/${lang}/`)) {
+    return path;
+  }
+  
+  // If path is just the root, add the language
+  if (path === '/') {
+    return `/${lang}`;
+  }
+  
+  // Otherwise, add the language prefix
+  return `/${lang}${path}`;
+}
 ---
 
 <header class="header">
@@ -55,21 +106,21 @@ const { pathname } = Astro.url;
       class="navbar-nav order-3 hidden w-full lg:order-1 lg:flex lg:w-auto lg:space-x-2"
     >
       {
-        main.map((menu) => (
+        menuItems.map((menuItem) => (
           <>
-            {menu.hasChildren ? (
+            {menuItem.hasChildren && menuItem.children ? (
               <li class="nav-item nav-dropdown group relative cursor-pointer dropdown-button">
                 <span
                   class={`nav-link inline-flex items-center ${
-                    menu.children?.map(({ url }) => url).includes(pathname) ||
-                    menu.children
-                      ?.map(({ url }) => `${url}/`)
+                    menuItem.children?.map(({ url }) => getLocalizedUrl(url)).includes(pathname) ||
+                    menuItem.children
+                      ?.map(({ url }) => `${getLocalizedUrl(url)}/`)
                       .includes(pathname)
                       ? "active"
                       : ""
                   }`}
                 >
-                  {menu.name}
+                  {menuItem.name}
                   <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                   </svg>
@@ -78,13 +129,13 @@ const { pathname } = Astro.url;
                   id="dropdown"
                   class="nav-dropdown-list mx-auto hidden duration-300 lg:invisible lg:absolute lg:block lg:h-auto lg:w-[13.5rem] lg:opacity-0 lg:group-hover:visible lg:group-hover:opacity-100"
                 >
-                  {menu.children?.map((child) => (
+                  {menuItem.children?.map((child) => (
                     <li class="nav-dropdown-item">
                       <a
-                        href={child.url}
+                        href={getLocalizedUrl(child.url)}
                         class={`nav-dropdown-link block ${
-                          (pathname === `${child.url}/` ||
-                            pathname === child.url) &&
+                          (pathname === `${getLocalizedUrl(child.url)}/` ||
+                            pathname === getLocalizedUrl(child.url)) &&
                           "text-primary"
                         }`}
                       >
@@ -97,20 +148,30 @@ const { pathname } = Astro.url;
             ) : (
               <li class="nav-item">
                 <a
-                  href={menu.url}
+                  href={getLocalizedUrl(menuItem.url)}
                   class={`nav-link inline-block lg:block ${
-                    (pathname === `${menu.url}/` || pathname === menu.url) &&
+                    (pathname === `${getLocalizedUrl(menuItem.url)}/` || pathname === getLocalizedUrl(menuItem.url)) &&
                     "active"
                   }`}
                 >
-                  {menu.name}
+                  {menuItem.name}
                 </a>
               </li>
             )}
           </>
         ))
       }
+      
+      <!-- Mobile Language Switcher -->
+      <li class="nav-item lg:hidden">
+        <LangSwitcher />
+      </li>
      </ul>
+     
+     <!-- Desktop Language Switcher -->
+     <div class="order-1 ml-auto hidden lg:order-2 lg:flex lg:items-center">
+       <LangSwitcher />
+     </div>
   </nav>
 </header>
 

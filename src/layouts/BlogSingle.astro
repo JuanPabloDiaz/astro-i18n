@@ -6,6 +6,7 @@ import { humanize, slugify } from "@/lib/utils/textConverter";
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
+import { getLangFromUrl } from "@/i18n/utils";
 import {
   FaRegCalendarAlt,
   FaRegClock,
@@ -19,6 +20,9 @@ type Props = {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// Get current language
+const lang = getLangFromUrl(Astro.url);
 ---
 
 <section class="section blog-single">
@@ -63,7 +67,7 @@ const { Content } = await render(post);
               {
                 post.data.categories.map((category, index) => (
                   <a
-                    href={`/categories/${slugify(category)}`}
+                    href={`/${lang}/categories/${slugify(category)}`}
                     class="hover:text-primary"
                   >
                     {humanize(category)}

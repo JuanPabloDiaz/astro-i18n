@@ -1,5 +1,7 @@
 ---
 import config from "@/config/config.json";
+import { getLangFromUrl } from "@/i18n/utils";
+
 const { src } = Astro.props;
 const {
   logo,
@@ -14,9 +16,15 @@ const {
   logo_text: string;
   title: string;
 } = config.site;
+
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+
+// Build home URL with language
+const homeUrl = `/${lang}`;
 ---
 
-<a href="/" class="navbar-brand block">
+<a href={homeUrl} class="navbar-brand block">
   {
     src || logo ? (
       <p

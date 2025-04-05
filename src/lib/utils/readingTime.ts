@@ -1,5 +1,10 @@
 // content reading
-const readingTime = (content: string) => {
+const readingTime = (content: string | undefined) => {
+  // Handle undefined or empty content
+  if (!content) {
+    return "01 Min read";
+  }
+
   const WPS = 275 / 60;
 
   let images = 0;

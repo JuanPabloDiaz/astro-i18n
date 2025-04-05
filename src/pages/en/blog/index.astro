@@ -12,9 +12,36 @@ import { getSinglePage } from "@/lib/contentParser.astro";
 import { getTaxonomy } from "@/lib/taxonomyParser.astro";
 import { sortByDate } from "@/lib/utils/sortFunctions";
 import type { CollectionEntry } from "astro:content";
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
 
-const blogIndex = (await getEntry("blog", "-index")) as CollectionEntry<"blog">;
+// Get language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-BLOG] Current language: ${lang}`);
+
+// Get blog index content
+const blogIndex = await getLocalizedEntry<CollectionEntry<"blog">>(
+  () => getCollection("blog"),
+  "index",
+  lang,
+  "blog"
+);
+
+console.log(`[DEBUG-BLOG] Blog index found: ${blogIndex ? 'Yes' : 'No'}`);
+if (blogIndex) {
+  console.log(`[DEBUG-BLOG] Blog index ID: ${blogIndex.id}`);
+}
+
+// If no blog index found, create a minimal default
+const blogData = blogIndex ? blogIndex.data : {
+  title: "Blog",
+  page_title: "Our Blog",
+  meta_title: "Blog Posts",
+  description: "Read our latest articles and updates",
+  image: ""
+};
+
+// Get blog posts
 const posts = await getSinglePage("blog");
 const categories = await getTaxonomy("blog", "categories");
 const sortedPosts = sortByDate(posts);
@@ -25,15 +52,15 @@ const currentPosts = recentPost.slice(0, config.settings.pagination);
 ---
 
 <Base
-  title={blogIndex.data.title}
-  meta_title={blogIndex.data.meta_title}
-  description={blogIndex.data.description}
-  image={blogIndex.data.image}
+  title={blogData.title}
+  meta_title={blogData.meta_title}
+  description={blogData.description}
+  image={blogData.image}
 >
   <Shape />
   <section class="page-hero pt-16">
     <div class="container">
-      <PageHeader page_data={blogIndex.data} />
+      <PageHeader page_data={blogData} />
     </div>
   </section>
   <section class="section">

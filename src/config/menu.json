@@ -2,30 +2,36 @@
   "main": [
     {
       "name": "Home",
-      "url": "/"
+      "url": "/",
+      "translationKey": "nav.home"
     },
     {
       "name": "About",
-      "url": "/about"
+      "url": "/about",
+      "translationKey": "nav.about"
     },
     {
       "name": "Blog",
-      "url": "/blog"
+      "url": "/blog",
+      "translationKey": "nav.blog"
     },
     {
       "name": "Contact",
-      "url": "/contact"
+      "url": "/contact",
+      "translationKey": "nav.contact"
     }
   ],
 
   "footer": [
     {
       "name": "About",
-      "url": "/about"
+      "url": "/about",
+      "translationKey": "nav.about"
     },
     {
       "name": "Contact",
-      "url": "/contact"
+      "url": "/contact",
+      "translationKey": "nav.contact"
     }
   ]
 }
