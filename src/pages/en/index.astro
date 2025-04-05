@@ -1,0 +1,66 @@
+---
+import Base from "@/layouts/Base.astro";
+import Banner from "@/layouts/components/Banner.astro";
+import KeyFeatures from "@/layouts/components/KeyFeatures.astro";
+import Service from "@/layouts/components/Service.astro";
+import Testimonial from "@/layouts/components/Testimonial.astro";
+import Cta from "@/layouts/partials/Cta.astro";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-ENGLISH] Current URL: ${Astro.url.pathname}, detected language: ${lang}`);
+
+// Get all entries for debugging
+const allHomepageEntries = await getCollection("homepage");
+console.log(`[DEBUG-ENGLISH] Found ${allHomepageEntries.length} homepage entries:`);
+allHomepageEntries.forEach(entry => {
+  const hasLang = entry.id.includes(`en/`) || entry.id.includes(`.en`);
+  console.log(`[DEBUG-ENGLISH] Entry ID: "${entry.id}" (EN match: ${hasLang ? '✅' : '❌'})`);
+});
+
+let content;
+try {
+  // First try: direct English entry from collection
+  const englishEntry = allHomepageEntries.find(entry => entry.id === 'en/homepage/index');
+  if (englishEntry) {
+    console.log(`[DEBUG-ENGLISH] ✅ Found direct match: ${englishEntry.id}`);
+    content = englishEntry.data;
+  } 
+  // Second try: use helper function
+  else {
+    const homepage = await getLocalizedEntry<CollectionEntry<"homepage">>(
+      () => getCollection("homepage"),
+      "index",
+      "en",
+      "homepage"
+    );
+    
+    if (homepage) {
+      console.log(`[DEBUG-ENGLISH] ✅ Found with helper: ${homepage.id}`);
+      content = homepage.data;
+    } else {
+      throw new Error("No English content found");
+    }
+  }
+  
+  console.log(`[DEBUG-ENGLISH] Content title: ${content.banner.title}`);
+} catch (error) {
+  console.error(`[DEBUG-ENGLISH] Error loading English content: ${error}`);
+  console.error(`[DEBUG-ENGLISH] No content found, redirecting...`);
+  return Astro.redirect("/");
+}
+
+// Extract the content parts
+const { banner, key_features, service, testimonial } = content;
+---
+
+<Base>
+  <Banner banner={banner} />
+  <KeyFeatures key_features={key_features} />
+  <Service service={service} />
+  <Testimonial testimonial={testimonial} />
+  <Cta />
+</Base>

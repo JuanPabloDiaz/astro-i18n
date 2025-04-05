@@ -7,9 +7,33 @@ import OurMembers from "@/components/about/OurMembers.astro";
 import Works from "@/components/about/Works.astro";
 import Base from "@/layouts/Base.astro";
 import type { CollectionEntry } from "astro:content";
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
 
-const about = (await getEntry("about", "-index")) as CollectionEntry<"about">;
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-ABOUT] Current URL: ${Astro.url.pathname}, detected language: ${lang}`);
+
+// Get all about entries for debugging
+const allAboutEntries = await getCollection("about");
+console.log(`[DEBUG-ABOUT] Found ${allAboutEntries.length} about entries:`);
+allAboutEntries.forEach(entry => {
+  console.log(`[DEBUG-ABOUT] Entry ID: "${entry.id}"`);
+});
+
+// Find the about entry for the current language
+const about = await getLocalizedEntry<CollectionEntry<"about">>(
+  () => getCollection("about"),
+  "index",
+  lang,
+  "about"
+);
+
+if (!about) {
+  console.error(`[DEBUG-ABOUT] No about content found for language: ${lang}`);
+  return Astro.redirect("/");
+}
+
 const { counter, gallery, features, members } = about.data;
 const page_data = {
   ...about.data,

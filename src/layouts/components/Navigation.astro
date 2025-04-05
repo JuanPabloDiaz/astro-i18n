@@ -1,0 +1,38 @@
+---
+import { getLangFromUrl, useTranslations, useTranslatedPath } from '@/i18n/utils';
+import LangSwitcher from './LangSwitcher.astro';
+
+// Get current language
+const lang = getLangFromUrl(Astro.url);
+
+// Get translations function
+const t = useTranslations(lang);
+
+// Get path translation function
+const translatePath = useTranslatedPath(lang);
+
+// Navigation items
+const navItems = [
+  { key: 'nav.home', path: '/' },
+  { key: 'nav.about', path: '/about/' },
+  { key: 'nav.services', path: '/services/' },
+  { key: 'nav.blog', path: '/blog/' },
+  { key: 'nav.contact', path: '/contact/' },
+];
+---
+<nav class="flex items-center justify-between py-4">
+  <div class="flex items-center space-x-6">
+    {navItems.map((item) => (
+      <a 
+        href={translatePath(item.path)} 
+        class="text-gray-700 hover:text-primary transition-colors"
+      >
+        {t(item.key as any)}
+      </a>
+    ))}
+  </div>
+  
+  <div>
+    <LangSwitcher />
+  </div>
+</nav> 

@@ -1,0 +1,74 @@
+---
+import Base from "@/layouts/Base.astro";
+import Banner from "@/layouts/components/Banner.astro";
+import KeyFeatures from "@/layouts/components/KeyFeatures.astro";
+import Service from "@/layouts/components/Service.astro";
+import Testimonial from "@/layouts/components/Testimonial.astro";
+import Cta from "@/layouts/partials/Cta.astro";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-SPANISH] Current URL: ${Astro.url.pathname}, detected language: ${lang}`);
+
+// Get all entries for debugging
+const allHomepageEntries = await getCollection("homepage");
+console.log(`[DEBUG-SPANISH] Found ${allHomepageEntries.length} homepage entries:`);
+allHomepageEntries.forEach(entry => {
+  const hasLang = entry.id.includes(`es/`) || entry.id.includes(`.es`);
+  console.log(`[DEBUG-SPANISH] Entry ID: "${entry.id}" (ES match: ${hasLang ? '✅' : '❌'})`);
+});
+
+let content;
+try {
+  // First try: direct Spanish entry from collection
+  const spanishEntry = allHomepageEntries.find(entry => entry.id === 'es/homepage/index');
+  if (spanishEntry) {
+    console.log(`[DEBUG-SPANISH] ✅ Found direct match: ${spanishEntry.id}`);
+    content = spanishEntry.data;
+  } 
+  // Second try: use helper function
+  else {
+    const homepage = await getLocalizedEntry<CollectionEntry<"homepage">>(
+      () => getCollection("homepage"),
+      "index",
+      "es",
+      "homepage"
+    );
+    
+    if (homepage) {
+      console.log(`[DEBUG-SPANISH] ✅ Found with helper: ${homepage.id}`);
+      content = homepage.data;
+    } else {
+      throw new Error("No Spanish content found");
+    }
+  }
+  
+  console.log(`[DEBUG-SPANISH] Content title: ${content.banner.title}`);
+} catch (error) {
+  console.error(`[DEBUG-SPANISH] Error loading Spanish content: ${error}`);
+  
+  // Fallback to English
+  const englishEntry = allHomepageEntries.find(entry => entry.id === 'en/homepage/index');
+  if (englishEntry) {
+    console.log(`[DEBUG-SPANISH] Using English fallback: ${englishEntry.id}`);
+    content = englishEntry.data;
+  } else {
+    console.error(`[DEBUG-SPANISH] No fallback content found, redirecting...`);
+    return Astro.redirect("/");
+  }
+}
+
+// Extract the content parts
+const { banner, key_features, service, testimonial } = content;
+---
+
+<Base>
+  <Banner banner={banner} />
+  <KeyFeatures key_features={key_features} />
+  <Service service={service} />
+  <Testimonial testimonial={testimonial} />
+  <Cta />
+</Base>
