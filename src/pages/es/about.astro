@@ -1,0 +1,77 @@
+---
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import CounterComponent from "@/components/about/CounterComponent.astro";
+import Gallery from "@/components/about/Gallery.astro";
+import OurMembers from "@/components/about/OurMembers.astro";
+import Works from "@/components/about/Works.astro";
+import Base from "@/layouts/Base.astro";
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
+
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-ABOUT-ES] Current URL: ${Astro.url.pathname}, detected language: ${lang}`);
+
+// Get all about entries for debugging
+const allAboutEntries = await getCollection("about");
+console.log(`[DEBUG-ABOUT-ES] Found ${allAboutEntries.length} about entries:`);
+allAboutEntries.forEach(entry => {
+  console.log(`[DEBUG-ABOUT-ES] Entry ID: "${entry.id}"`);
+});
+
+// Find the about entry for the current language
+let about = await getLocalizedEntry<CollectionEntry<"about">>(
+  () => getCollection("about"),
+  "index",
+  "es",
+  "about"
+);
+
+let counter, gallery, features, members, page_data;
+
+if (!about) {
+  console.error(`[DEBUG-ABOUT-ES] No Spanish about content found, trying English fallback`);
+  
+  // Try to get English content as fallback
+  about = await getLocalizedEntry<CollectionEntry<"about">>(
+    () => getCollection("about"),
+    "index",
+    "en",
+    "about"
+  );
+  
+  if (!about) {
+    console.error(`[DEBUG-ABOUT-ES] No fallback content found, redirecting...`);
+    return Astro.redirect("/");
+  }
+}
+
+// At this point, about is guaranteed to be non-null
+({ counter, gallery, features, members } = about.data);
+page_data = {
+  ...about.data,
+  content: about.body,
+};
+---
+
+<Base
+  title={page_data.title}
+  meta_title={page_data.meta_title}
+  description={page_data.description}
+  image={page_data.image}
+>
+  <Shape />
+  <section class="page-hero py-16">
+    <div class="container">
+      <div class="page-hero-content mx-auto max-w-[768px] text-center">
+        <PageHeader page_data={page_data} />
+      </div>
+      <CounterComponent counter={counter} />
+      <Gallery gallery={gallery} />
+      <Works features={features} />
+      <OurMembers members={members} />
+    </div>
+  </section>
+</Base> 

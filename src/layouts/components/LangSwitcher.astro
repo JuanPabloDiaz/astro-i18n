@@ -1,0 +1,53 @@
+---
+import { languages, getLangFromUrl, getRouteFromUrl } from "@/i18n/utils";
+
+// Get the current language from URL path
+const currentLang = getLangFromUrl(Astro.url);
+
+// Get the current path without the language prefix
+const { pathname } = Astro.url;
+const pathSegments = pathname.split('/').filter(Boolean);
+
+// Remove the language part from the path
+const pathWithoutLang = pathSegments.length > 1 ? pathSegments.slice(1).join('/') : '';
+
+// Get the current route (for translation purposes if needed)
+const currentRoute = getRouteFromUrl(Astro.url);
+
+console.log(`LangSwitcher - Current language: ${currentLang}, path segments: [${pathSegments.join(', ')}]`);
+---
+
+<!-- Simple language links -->
+<div class="flex items-center space-x-2">
+  {Object.entries(languages).map(([code, label]) => {
+    // Create a direct path to the same page but with different language
+    const href = `/${code}${pathWithoutLang ? '/' + pathWithoutLang : ''}`;
+    
+    console.log(`LangSwitcher - Creating path for ${code}: ${href}`);
+    
+    return (
+      <a 
+        href={href}
+        class={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
+          currentLang === code 
+          ? 'bg-primary text-white' 
+          : 'bg-gray-100 text-dark hover:bg-gray-200'
+        }`}
+        aria-current={currentLang === code ? 'page' : undefined}
+      >
+        {code.toUpperCase()}
+      </a>
+    );
+  })}
+</div>
+
+<style>
+  /* Mobile optimization */
+  @media (max-width: 1023px) {
+    div {
+      width: 100%;
+      justify-content: flex-start;
+      margin: 1rem 0;
+    }
+  }
+</style> 

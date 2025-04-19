@@ -1,0 +1,93 @@
+import Blog from "@/components/Blog.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import Shape from "@/components/Shape.astro";
+import BlogCategories from "@/components/blog/BlogCategories.astro";
+import FeaturedBlog from "@/components/blog/FeaturedBlog.astro";
+import config from "@/config/config.json";
+import Base from "@/layouts/Base.astro";
+import Pagination from "@/layouts/components/Pagination.astro";
+import Cta from "@/layouts/partials/Cta.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { getTaxonomy } from "@/lib/taxonomyParser.astro";
+import { sortByDate } from "@/lib/utils/sortFunctions";
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
+
+// Get language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-BLOG-ES] Current language: ${lang}`);
+
+// Get blog index content
+const blogIndex = await getLocalizedEntry<CollectionEntry<"blog">>(
+  () => getCollection("blog"),
+  "index",
+  lang,
+  "blog"
+);
+
+console.log(`[DEBUG-BLOG-ES] Blog index found: ${blogIndex ? 'Yes' : 'No'}`);
+if (blogIndex) {
+  console.log(`[DEBUG-BLOG-ES] Blog index ID: ${blogIndex.id}`);
+}
+
+// If no blog index found, create a minimal default or try English version
+let blogData;
+if (blogIndex) {
+  blogData = blogIndex.data;
+} else {
+  console.log('[DEBUG-BLOG-ES] No Spanish blog index found, trying English fallback');
+  const enBlogIndex = await getLocalizedEntry<CollectionEntry<"blog">>(
+    () => getCollection("blog"),
+    "index",
+    "en",
+    "blog"
+  );
+  
+  if (enBlogIndex) {
+    console.log('[DEBUG-BLOG-ES] Using English blog index as fallback');
+    blogData = enBlogIndex.data;
+  } else {
+    // Default fallback
+    blogData = {
+      title: "Blog",
+      page_title: "Nuestro Blog",
+      meta_title: "Artículos del Blog",
+      description: "Lee nuestros últimos artículos y actualizaciones",
+      image: ""
+    };
+  }
+}
+
+// Get blog posts - we might need to adapt this to get Spanish posts only
+const posts = await getSinglePage("blog");
+const categories = await getTaxonomy("blog", "categories");
+const sortedPosts = sortByDate(posts);
+const featuredPost = sortedPosts.filter((item) => item.data.featured);
+const recentPost = sortedPosts.filter((item) => !item.data.featured);
+const totalPages = Math.ceil(recentPost.length / config.settings.pagination);
+const currentPosts = recentPost.slice(0, config.settings.pagination);
+
+<Base
+  title={blogData.title}
+  meta_title={blogData.meta_title}
+  description={blogData.description}
+  image={blogData.image}
+>
+  <Shape />
+  <section class="page-hero pt-16">
+    <div class="container">
+      <PageHeader page_data={blogData} />
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <FeaturedBlog posts={featuredPost} />
+      <BlogCategories categories={categories} />
+      <h2 class="h4 mb-4">Artículos Recientes</h2>
+      <Blog posts={currentPosts} />
+      <Pagination section={"blog"} currentPage={1} totalPages={totalPages} />
+    </div>
+  </section>
+  <Cta />
+</Base> 

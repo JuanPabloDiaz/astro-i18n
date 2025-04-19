@@ -3,10 +3,52 @@ import Logo from "@/components/Logo.astro";
 import Social from "@/components/Social.astro";
 import config from "@/config/config.json";
 import menu from "@/config/menu.json";
+import menuI18n from "@/config/menu-i18n.json";
 import social from "@/config/social.json";
 import { markdownify } from "@/lib/utils/textConverter";
-const { footer } = menu;
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
+
 const { copyright, location, email, phone, footer_description } = config.params;
+const lang = getLangFromUrl(Astro.url);
+
+// Get translations function
+const t = useTranslations(lang);
+
+// Get language-specific footer menu
+interface MenuItem {
+  name: string;
+  url: string;
+}
+
+// Get language-specific menu with type safety
+let footerItems: MenuItem[] = [];
+if (lang in menuI18n) {
+  const langMenu = menuI18n[lang as keyof typeof menuI18n];
+  if (langMenu && 'footer' in langMenu) {
+    footerItems = langMenu.footer as MenuItem[];
+  }
+} 
+
+if (footerItems.length === 0) {
+  // Fallback to standard menu
+  footerItems = menu.footer as MenuItem[];
+}
+
+// Function to get a language-specific URL
+function getLocalizedUrl(path: string): string {
+  // If the path already starts with the language code, return it as is
+  if (path.startsWith(`/${lang}/`)) {
+    return path;
+  }
+  
+  // If path is just the root, add the language
+  if (path === '/') {
+    return `/${lang}`;
+  }
+  
+  // Otherwise, add the language prefix
+  return `/${lang}${path}`;
+}
 ---
 
 <footer class="footer bg-[#F1F1F1]">
@@ -19,17 +61,17 @@ const { copyright, location, email, phone, footer_description } = config.params;
         </p>
       </div>
       <div class="col-12 mt-12 md:col-6 lg:col-3">
-        <h6>Socials</h6>
+        <h6>{t('footer.socials')}</h6>
 
         <Social source={social} className="social-icons mt-4 lg:mt-6" />
       </div>
       <div class="col-12 mt-12 md:col-6 lg:col-3">
-        <h6>Quick Links</h6>
+        <h6>{t('footer.quickLinks')}</h6>
         <ul>
           {
-            footer.map((item, i) => (
-              <li class={footer.length - 1 === i ? "mb-0" : "mb-4"}>
-                <a class="hover:text-primary hover:underline " href={item.url}>
+            footerItems.map((item, i) => (
+              <li class={footerItems.length - 1 === i ? "mb-0" : "mb-4"}>
+                <a class="hover:text-primary hover:underline " href={getLocalizedUrl(item.url)}>
                   {item.name}
                 </a>
               </li>
@@ -38,7 +80,7 @@ const { copyright, location, email, phone, footer_description } = config.params;
         </ul>
       </div>
       <div class="col-12 mt-12 md:col-6 lg:col-3">
-        <h6>Location & Contact</h6>
+        <h6>{t('footer.location')}</h6>
         <ul>
           <li class="mb-2">{location}</li>
           <li class="mb-2">

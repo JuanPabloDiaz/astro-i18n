@@ -1,4 +1,6 @@
 ---
+import { getLangFromUrl } from "@/i18n/utils";
+
 const { section, currentPage, totalPages } = Astro.props;
 const indexPageLink = currentPage === 2;
 const hasPrevPage = currentPage > 1;
@@ -7,6 +9,9 @@ let pageList = [];
 for (let i = 1; i <= totalPages; i++) {
   pageList.push(i);
 }
+
+// Get language from URL
+const lang = getLangFromUrl(Astro.url);
 ---
 
 {
@@ -20,8 +25,8 @@ for (let i = 1; i <= totalPages; i++) {
         <a
           href={
             indexPageLink
-              ? `${section ? "/" + section : "/"}`
-              : `${section ? "/" + section : ""}/page/${currentPage - 1}`
+              ? `/${lang}${section ? "/" + section : "/"}`
+              : `/${lang}${section ? "/" + section : ""}/page/${currentPage - 1}`
           }
           class="mr-5 flex items-center rounded-full border px-4 py-2 text-text-dark hover:shadow-lg md:px-6 md:py-3"
         >
@@ -72,8 +77,8 @@ for (let i = 1; i <= totalPages; i++) {
           <a
             href={
               i === 0
-                ? `${section ? "/" + section : "/"}`
-                : `${section ? "/" + section : ""}/page/${pagination}`
+                ? `/${lang}${section ? "/" + section : "/"}`
+                : `/${lang}${section ? "/" + section : ""}/page/${pagination}`
             }
             aria-current="page"
             class={`mx-1 flex h-10 w-10 items-center justify-center rounded-full border bg-white text-text-dark hover:bg-primary hover:text-white md:h-12 md:w-12 `}
@@ -86,7 +91,7 @@ for (let i = 1; i <= totalPages; i++) {
       {/* next page */}
       {hasNextPage ? (
         <a
-          href={`${section ? "/" + section : ""}/page/${currentPage + 1}`}
+          href={`/${lang}${section ? "/" + section : ""}/page/${currentPage + 1}`}
           class="ml-5 flex items-center rounded-full border px-4 py-2 text-text-dark hover:shadow-lg md:px-6 md:py-3"
         >
           <span>Next</span>

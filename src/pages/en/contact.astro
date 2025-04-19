@@ -4,25 +4,45 @@ import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { getLangFromUrl, getLocalizedEntry } from "@/i18n/utils";
 
-const entry = (await getEntry(
-  "contact",
-  "-index"
-)) as CollectionEntry<"contact">;
+// Get current language from URL
+const lang = getLangFromUrl(Astro.url);
+console.log(`[DEBUG-CONTACT] Current URL: ${Astro.url.pathname}, detected language: ${lang}`);
+
+// Get contact content for the current language
+const contact = await getLocalizedEntry<CollectionEntry<"contact">>(
+  () => getCollection("contact"),
+  "index",
+  lang,
+  "contact"
+);
+
+// Default contact data if no content is found
+const defaultContactData = {
+  title: "Contact Us",
+  meta_title: "Contact Us",
+  description: "Contact our team",
+  page_title: "Get in Touch",
+  image: "/images/contact-img.png"
+};
+
+// If no contact content found, use default data
+const contactData = contact?.data || defaultContactData;
 const { contact_form_action } = config.params;
-const contact = entry.data;
+
 const page_data = {
-  ...contact,
-  content: entry.body,
+  ...contactData,
+  content: contact?.body || "",
 };
 ---
 
 <Base
-  title={contact.title}
-  meta_title={contact.meta_title}
-  description={contact.description}
-  image={contact.image}
+  title={contactData.title}
+  meta_title={contactData.meta_title}
+  description={contactData.description}
+  image={contactData.image}
 >
   <section class="page-hero pb-6 pt-16">
     <div class="container">
